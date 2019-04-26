@@ -1,10 +1,15 @@
+var sslRedirect = require('heroku-ssl-redirect');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const morgan = require('morgan');
 
+app.use(sslRedirect(['production'], 301));
+app.use(serveStatic(path.join(__dirname, 'dist')));
+
 const app = express();
 app.use(morgan('combined'));
+
 app.use(bodyParser.json());
 app.use(cors());
 
