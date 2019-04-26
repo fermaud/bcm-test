@@ -8,7 +8,7 @@ app.use(morgan('combined'));
 app.use(bodyParser.json());
 app.use(cors());
 
-var getFlights = require('./Clients/getFlights');
+var getFlights = require('./server/Clients/getFlights');
 getFlights(app);
 
 app.listen(process.env.PORT || 8081);
