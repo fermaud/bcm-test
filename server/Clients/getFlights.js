@@ -40,8 +40,7 @@ const testTab3 = [
 
 
 module.exports = function (app) {
-
-    function renameKeys(obj, newKeys) {
+    function renameKeys (obj, newKeys) {
         const keyValues = Object.keys(obj).map(key => {
             const newKey = newKeys[key] || key;
             return { [newKey]: obj[key] };
@@ -49,7 +48,7 @@ module.exports = function (app) {
         return Object.assign({}, ...keyValues);
     }
 
-    function format_for_air_beam(flightsTab) {
+    function formatForAirBeam (flightsTab) {
         var newTab = testTab1.split('\n');
         newTab.shift();
         // checker si ca delete le dernier element
@@ -62,49 +61,48 @@ module.exports = function (app) {
                 price: parseInt(newTab[flight][1]),
                 departure_time: newTab[flight][2],
                 arrival_time: newTab[flight][3]
-            }
+            };
             newTab[flight] = newFormat;
         }
         return (newTab);
     }
 
-    function add_company_name (flightsTab, companyName) {
+    function addCompanyName (flightsTab, companyName) {
         for (let flight in flightsTab) {
-            flightsTab[flight].provider = companyName
+            flightsTab[flight].provider = companyName;
         }
         return flightsTab;
     }
 
-    function format_for_air_jazz(flightsTab) {
-        const newKeys = { id: "id", price: "price", dtime: "departure_time", atime: "arrival_time" };
+    function formatForAirJazz (flightsTab) {
+        const newKeys = { id: 'id', price: 'price', dtime: 'departure_time', atime: 'arrival_time' };
         for (let flight in flightsTab) {
             flightsTab[flight] = renameKeys(flightsTab[flight], newKeys);
-            flightsTab[flight].provider = 'AIR_JAZZ'
+            flightsTab[flight].provider = 'AIR_JAZZ';
         }
         return flightsTab;
     }
 
-    function give_flights_same_format (flightsTab) {
+    function giveFlightsSameFormat (flightsTab) {
         if (flightsTab.includes('id,p,departure,arrival')) {
-            flightsTab = format_for_air_beam(flightsTab);
+            flightsTab = formatForAirBeam(flightsTab);
         } else if (-1 !== Object.keys(flightsTab[0]).indexOf('dtime')) {
-            flightsTab = format_for_air_jazz(flightsTab);
-        } 
-        else if (-1 !== Object.keys(flightsTab[0]).indexOf('departure_time')) {
-            flightsTab = add_company_name(flightsTab, 'AIR_MOON');
+            flightsTab = formatForAirJazz(flightsTab);
+        } else if (-1 !== Object.keys(flightsTab[0]).indexOf('departure_time')) {
+            flightsTab = addCompanyName(flightsTab, 'AIR_MOON');
         }
-        return flightsTab
+        return flightsTab;
     };
 
-    function sort_flights_in_tab (flightsByCompanies) {
+    function sortFlightsInTab (flightsByCompanies) {
         let allFlightstab = [];
         for (let flightsTab in flightsByCompanies) {
-            allFlightstab.push(give_flights_same_format(flightsByCompanies[flightsTab]));
+            allFlightstab.push(giveFlightsSameFormat(flightsByCompanies[flightsTab]));
         }
         return allFlightstab;
     };
 
-    function join_all_tabs (flightsTab) {
+    function joinAllTabs (flightsTab) {
         let properFlightTab = [];
         for (let tab in flightsTab) {
             for (let flight in flightsTab[tab]) {
@@ -114,7 +112,7 @@ module.exports = function (app) {
         return properFlightTab;
     };
 
-    function get_all_flights (myCompanies) {
+    function getAllFlights (myCompanies) {
         // for (var company in myCompanies) {
         //     flightsApi.get_flights_from_company(myCompanies[company], company).then(response => {
         //         let companyFlights = {
@@ -122,7 +120,7 @@ module.exports = function (app) {
         //         }
         //         flightsTab.push(companyFlights);
         //         if (cnt === myCompanies.length) {
-        //             sort_flights_in_tab(flightsTab);
+        //             sortFlightsInTab(flightsTab);
         //         }
         //         cnt += 1;
         //     }).catch((error) => {
@@ -131,9 +129,10 @@ module.exports = function (app) {
         // }
         let flightsTab = [];
         flightsTab.push(testTab1, testTab2, testTab3);
-        flightsTab = sort_flights_in_tab(flightsTab);
-        flightsTab = join_all_tabs(flightsTab);    
-        flightsTab = flightsTab.sort(function(a, b){
+        flightsTab = sortFlightsInTab(flightsTab);
+        
+        flightsTab = joinAllTabs(flightsTab);   
+        flightsTab = flightsTab.sort(function (a, b) {
             return parseFloat(a.price) - parseFloat(b.price);
         });
         console.log(flightsTab);
@@ -142,7 +141,7 @@ module.exports = function (app) {
 
     app.get('/api/flights', (req, res) => {
         const myCompanies = ['air-jazz', 'air-moon', 'air-beam'];
-        const mySortedFlights = get_all_flights(myCompanies);
+        const mySortedFlights = getAllFlights(myCompanies);
         res.end(JSON.stringify(mySortedFlights));
-    })
+    });
 };

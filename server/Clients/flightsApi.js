@@ -3,7 +3,7 @@ const axios = require('axios');
 const VAR_ENV = require('../config.js');
 
 module.exports = {
-    get_flights_from_company: function(company, index) {
+    get_flights_from_company: function (company, index) {
         // if (2 === index ) {
         //     return false;
         // }
@@ -15,5 +15,5 @@ module.exports = {
             }
         };
         return axios.get(url + company + '/flights', headers);
-    },
+    }
 };
