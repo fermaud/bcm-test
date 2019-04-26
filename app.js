@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const morgan = require('morgan');
+var serveStatic = require('serve-static');
 
 app.use(sslRedirect(['production'], 301));
 app.use(serveStatic(path.join(__dirname, 'dist')));
