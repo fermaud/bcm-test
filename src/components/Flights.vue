@@ -36,7 +36,7 @@ export default {
     },
     methods: {
         async getFlight () {
-            let apiKey = btoa(Encryptor.encryptStr(process.env.APP_API_KEY));
+            const apiKey = btoa(Encryptor.encryptStr(process.env.APP_API_KEY));
             const response = await FlightsService.fetchFlights(apiKey);
             this.flightTab = response.data;
             this.isLoading = false;

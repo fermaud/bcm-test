@@ -17,7 +17,7 @@ module.exports = function (app) {
     function formatForAirBeam (flightsTab) {
         var newTab = flightsTab.split('\n');
         newTab.shift();
-        for (var flight in newTab) {
+        for (let flight in newTab) {
             newTab[flight] = newTab[flight].split(',');
             let newFormat = {
                 provider: 'AIR_BEAM',
