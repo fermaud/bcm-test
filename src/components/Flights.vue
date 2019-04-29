@@ -1,4 +1,4 @@
-<template>
+l<template>
     <div class="users">
         <h1>My Flights</h1>
         <table v-if="!isLoading" align="center">
@@ -21,6 +21,7 @@
 
 <script>
 import FlightsService from '@/services/FlightsService';
+import Encryptor from '@/services/Encryptor';
 
 export default {
     name: 'users',
@@ -35,7 +36,8 @@ export default {
     },
     methods: {
         async getFlight () {
-            const response = await FlightsService.fetchFlights();
+            let apiKey = btoa(Encryptor.encryptStr(process.env.APP_API_KEY));
+            const response = await FlightsService.fetchFlights(apiKey);
             this.flightTab = response.data;
             this.isLoading = false;
         }

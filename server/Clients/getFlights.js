@@ -2,6 +2,7 @@
 const axios = require('axios');
 const Encryptor = require('./encryptor.js');
 const VAR_ENV = require('../config.js');
+
 // https://github.com/BCM-ENERGY-team/bcm-backend-interview/blob/master/code.README.md
 
 module.exports = function (app) {
@@ -115,7 +116,15 @@ module.exports = function (app) {
 
     app.get('/api/flights', async (req, res) => {
         const myCompanies = ['air-jazz', 'air-moon', 'air-beam'];
-        let flightsTab = await getAllFlights(myCompanies);
-        res.end(JSON.stringify(flightsTab));
+        if (req.query.apiKey) {
+            if (Encryptor.decryptStr(req.query.apiKey) === VAR_ENV.APP_API_KEY) {               
+                const flightsTab = await getAllFlights(myCompanies);
+                res.end(JSON.stringify(flightsTab));
+            } else {
+                res.end('Invalid ApiKey');
+            }
+        } else {
+            res.end('Missing Parameter: apiKey');
+        }
     });
 };
