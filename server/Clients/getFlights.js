@@ -1,7 +1,7 @@
 'use strict';
 const axios = require('axios');
 const Encryptor = require('./encryptor.js');
-
+const VAR_ENV = require('../config.js');
 // https://github.com/BCM-ENERGY-team/bcm-backend-interview/blob/master/code.README.md
 
 module.exports = function (app) {
@@ -88,7 +88,7 @@ module.exports = function (app) {
 
     const getFlightsFromCompany = async (company) => {
         try {
-            return await axios.get('https://my.api.mockaroo.com/' + company + '/flights?key=dd764f40');
+            return await axios.get(VAR_ENV.MOCKAROO_BASE_URL + company + '/flights?key=' + VAR_ENV.APP_API_KEY);
         } catch (error) {
             await Promise.reject(new Error(error));
         }
