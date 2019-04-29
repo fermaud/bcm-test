@@ -88,7 +88,7 @@ module.exports = function (app) {
 
     const getFlightsFromCompany = async (company) => {
         try {
-            return await axios.get(VAR_ENV.MOCKAROO_BASE_URL + company + '/flights?key=' + VAR_ENV.APP_API_KEY);
+            return await axios.get(VAR_ENV.MOCKAROO_BASE_URL + company + '/flights?key=' + VAR_ENV.MOCKAROO_API_KEY);
         } catch (error) {
             await Promise.reject(new Error(error));
         }

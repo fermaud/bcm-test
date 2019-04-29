@@ -1,9 +1,6 @@
 import CryptoJS from 'crypto-js';
 
 export default {
-    test (str) {
-        console.log(str);
-    },
     hex2bin (hex) {
         var bytes = [];
         var str;
