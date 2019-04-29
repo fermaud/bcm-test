@@ -1,7 +1,7 @@
 import Api from '@/services/Api';
 
 export default {
-    fetchFlights () {
+    fetchFlights (apiKey) {
         return Api().get('flights');
     }
 };

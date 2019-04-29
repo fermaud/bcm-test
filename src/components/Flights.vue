@@ -1,7 +1,7 @@
 <template>
     <div class="users">
         <h1>My Flights</h1>
-        <table align="center">
+        <table v-if="!isLoading" align="center">
             <tr>
                 <td width="150">Provider</td>
                 <td width="100">Price</td>
@@ -15,6 +15,7 @@
                 <td>{{ flight.arrival_time }}</td>
             </tr>
         </table>
+        <p v-else>Loading ...</p>
     </div>
 </template>
 
@@ -25,7 +26,8 @@ export default {
     name: 'users',
     data () {
         return {
-            flightTab: ''
+            flightTab: '',
+            isLoading: true
         };
     },
     mounted () {
@@ -35,6 +37,7 @@ export default {
         async getFlight () {
             const response = await FlightsService.fetchFlights();
             this.flightTab = response.data;
+            this.isLoading = false;
         }
     }
 };

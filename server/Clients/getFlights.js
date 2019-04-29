@@ -1,43 +1,8 @@
 'use strict';
 const axios = require('axios');
-const flightsApi = require('./flightsApi.js');
+const Encryptor = require('./encryptor.js');
 
-// Air Beam 519 493 495
 // https://github.com/BCM-ENERGY-team/bcm-backend-interview/blob/master/code.README.md
-const testTab1 = 'id,p,departure,arrival\n8c4e85c2-5010-4d79-8c9a-88609b155bcb,519.69,12:15 PM,3:32 PM\n57e5cce6-1b1f-4f49-8a4a-b7ef0a9718a8,493.09,7:24 PM,5:50 PM\n54c57054-fd78-4524-8bb8-a32293be3df1,495.19,8:08 AM,8:46 AM';
-
-// Air Jazz 511 512 
-const testTab2 = [
-{
-    "id": "c2e91bdf-ccc0-45d5-b4ea-ef75bc932ae8",
-    "price": 511.78,
-    "dtime": "9:15 PM",
-    "atime": "5:35 AM"
-},
-{
-    "id": "c2e91bdf-ccc0-45d5-b4ea-ef75bc932ae8",
-    "price": 512.78,
-    "dtime": "9:15 PM",
-    "atime": "5:35 AM"
-}
-];
-
-// Air Moon 5011 5323011
-const testTab3 = [
-{
-    "id": "c2e91bdf-ccc0-45d5-b4ea-ef75bc932ae8",
-    "price": 5011.78,
-    "departure_time": "9:15 PM",
-    "arrival_time": "5:35 AM"
-},
-{
-    "id": "c2e91bdf-ccc0-45d5-b4ea-ef75bc932ae8",
-    "price": 5323011.78,
-    "departure_time": "9:15 PM",
-    "arrival_time": "5:35 AM"
-}
-];
-
 
 module.exports = function (app) {
     function renameKeys (obj, newKeys) {
@@ -49,10 +14,8 @@ module.exports = function (app) {
     }
 
     function formatForAirBeam (flightsTab) {
-        var newTab = testTab1.split('\n');
+        var newTab = flightsTab.split('\n');
         newTab.shift();
-        // checker si ca delete le dernier element
-        // newTab.pop();
         for (var flight in newTab) {
             newTab[flight] = newTab[flight].split(',');
             let newFormat = {
@@ -94,12 +57,15 @@ module.exports = function (app) {
         return flightsTab;
     };
 
-    function sortFlightsInTab (flightsByCompanies) {
-        let allFlightstab = [];
-        for (let flightsTab in flightsByCompanies) {
-            allFlightstab.push(giveFlightsSameFormat(flightsByCompanies[flightsTab]));
+    function setFlightLimitTo50 (flightsTab) {
+        let sliced = [];
+        for (var i = 0; i < flightsTab.length; i++) {
+            if (50 === i) {
+                return sliced;
+            }
+            sliced[i] = flightsTab[i];
         }
-        return allFlightstab;
+        return sliced;
     };
 
     function joinAllTabs (flightsTab) {
@@ -112,36 +78,44 @@ module.exports = function (app) {
         return properFlightTab;
     };
 
-    function getAllFlights (myCompanies) {
-        // for (var company in myCompanies) {
-        //     flightsApi.get_flights_from_company(myCompanies[company], company).then(response => {
-        //         let companyFlights = {
-        //             flights: response.data
-        //         }
-        //         flightsTab.push(companyFlights);
-        //         if (cnt === myCompanies.length) {
-        //             sortFlightsInTab(flightsTab);
-        //         }
-        //         cnt += 1;
-        //     }).catch((error) => {
-        //         console.warn('error ' + error);
-        //     });
-        // }
+    function sortFlightsInTab (flightsTab) {
+        let allFlightstab = [];
+        for (let companyTab in flightsTab) {
+            allFlightstab.push(giveFlightsSameFormat(flightsTab[companyTab]));
+        }
+        return allFlightstab;
+    };
+
+    const getFlightsFromCompany = async (company) => {
+        try {
+            return await axios.get('https://my.api.mockaroo.com/' + company + '/flights?key=dd764f40');
+        } catch (error) {
+            await Promise.reject(new Error(error));
+        }
+    };
+
+    const getAllFlights = async (myCompanies) => {
         let flightsTab = [];
-        flightsTab.push(testTab1, testTab2, testTab3);
+        for (var company in myCompanies) {
+            try {
+                let flights = await getFlightsFromCompany(myCompanies[company]);
+                flightsTab.push(flights.data);
+            } catch (err) {
+                console.warn(err);
+            }
+        }
         flightsTab = sortFlightsInTab(flightsTab);
-        
         flightsTab = joinAllTabs(flightsTab);   
         flightsTab = flightsTab.sort(function (a, b) {
             return parseFloat(a.price) - parseFloat(b.price);
         });
-        console.log(flightsTab);
+        flightsTab = setFlightLimitTo50(flightsTab);
         return flightsTab;
     };
 
-    app.get('/api/flights', (req, res) => {
+    app.get('/api/flights', async (req, res) => {
         const myCompanies = ['air-jazz', 'air-moon', 'air-beam'];
-        const mySortedFlights = getAllFlights(myCompanies);
-        res.end(JSON.stringify(mySortedFlights));
+        let flightsTab = await getAllFlights(myCompanies);
+        res.end(JSON.stringify(flightsTab));
     });
 };
